@@ -26,10 +26,24 @@ const BOOKS = [
 
 
 const SERVER = HTTP.createServer(function(request,response){
-    response.setHeader('Content-Type','application/json');
-    
+     response.setHeader('Content-Type','application/json');
+
+    response.writeHead(200,{'Content-Type': 'application/json'})
+
+    let body = [];
+
+    //console.log(request.headers.authorization);
+    request.on('data', dataCliente => {
+        body.push(dataCliente);
+    });
+
+    request.on('end',function(){
+        body = Buffer.concat(body).toString();
+        console.log(body);
+    });
     response.end(
         JSON.stringify({data: BOOKS})
+        
     );
 });
 
