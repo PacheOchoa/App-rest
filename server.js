@@ -1,7 +1,6 @@
 const HTTP = require('http');
 const PORT = 5000;
 
-
 const BOOKS = [
     {
       'title' : 'libro de programación',
@@ -9,7 +8,7 @@ const BOOKS = [
       'pages': 220
     },
     {
-        'title' : 'estructurasde datos',
+        'title' : 'estructuras de datos',
         'author' : 'Sergio Ochoa Zamora',
         'pages': 220
       },
@@ -27,9 +26,8 @@ const BOOKS = [
 
 
 const SERVER = HTTP.createServer(function(request,response){
-     response.setHeader('Content-Type','application/json');
-
-    response.writeHead(200,{'Content-Type': 'application/json'})
+    //response.statusCode = 404;
+    const {method,url} = request;
 
     let body = [];
 
@@ -39,17 +37,44 @@ const SERVER = HTTP.createServer(function(request,response){
     });
 
     request.on('end',function(){
+
         body = Buffer.concat(body).toString();
-        console.log(body);
+        let status = 404;
+        const res = {
+            status: 404,
+            data : null
+        }
+
+        if(method === 'GET' && url === '/libros'){
+             status = 200;
+             res.status = 200;
+             res.data = BOOKS;
+
+        }else if(method === 'POST' && url === '/libros'){
+              status = 200;
+               const {title,author,pages} = JSON.parse(body);
+               BOOKS.push({title,author,pages});
+               res.status = 200;
+               res.data = BOOKS;
+        }
+
+        response.writeHead(status,{'Content-Type': 'application/json'})
+
+        response.end(
+          JSON.stringify(res)
+          
+      );
+
+
     });
-    response.end(
-        JSON.stringify({data: BOOKS})
-        
-    );
+   
 });
 
 SERVER.listen(PORT,function(){
     console.log('el server se está ejecutando');
 });
+
+
+
 
 
